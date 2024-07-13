@@ -96,7 +96,7 @@ class HiddenConnectionsGame():
             new_answer = ' + '.join(section.strip() for section in sections)
             if hint_text:
                 new_answer += ' ' + hint_text.strip()
-            self.answers[int(row)-1] = new_answer
+            self.answers[int(row)-1] = new_answer + rowThemeList[int(row)-1]
             await message.add_reaction('✍️')
             if self.message:
                 await self.message.edit(content=self.status())
