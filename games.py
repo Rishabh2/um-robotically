@@ -56,6 +56,51 @@ class PointsGame():
     async def update_reaction(self, reaction_event: discord.RawReactionActionEvent) -> bool:
         return True # No-op on reactions
 
+class EggGame():
+    def __init__(self, client: discord.Client, message: discord.Message) -> None:
+        self.client = client
+        self.author = message.author
+        self.channel = message.channel
+        
+        self.eggs_dict = defaultdict(int)
+    
+    def status(self) -> str:
+        return 'Total Eggs:\n' + '\n'.join(f'<@{user_id}> with {eggs} eggs.' for user_id, eggs in sorted(self.eggs_dict.items(), key=lambda x: x[1]))
+    
+    async def update_message(self, message: discord.Message) -> bool:
+        if message.channel.id != self.channel.id:
+            return True
+        
+        if not (message.author.id == self.author.id or any(role.id == QUESTIONEER_ID for role in message.author.roles)):
+            return True
+        
+        if message.content.lower().startswith('!end'):
+            await message.channel.send(self.status())
+            return False
+        
+        if message.content.lower().startswith('!game'):
+            await message.channel.send(self.status(), silent=True)
+            return True
+        
+        if not message.content.lower().startswith('!e'):
+            return True
+        
+        if len(message.raw_mentions) == 0:
+            await message.channel.send(self.status(), silent=True)
+            return True
+        egg_value = re.search(r'[\d-]+$', message.content.lower().split()[0])
+        if not egg_value:
+            egg_value = 1
+        else:
+            egg_value = int(egg_value.group(0))
+        for user_id in message.raw_mentions:
+            self.eggs_dict[user_id] += egg_value
+        await message.add_reaction('🥚️')
+        return True
+    
+    async def update_reaction(self, reaction_event: discord.RawReactionActionEvent) -> bool:
+        return True # No-op on reactions
+
 class HiddenConnectionsGame():
     def __init__(self, client: discord.Client, message: discord.Message) -> None:
         self.client = client
