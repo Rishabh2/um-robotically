@@ -95,7 +95,7 @@ class EggsGame():
             egg_value = int(egg_value.group(0))
         for user_id in message.raw_mentions:
             self.eggs_dict[user_id] += egg_value
-        await message.add_reaction('🥚️')
+        await message.add_reaction('🥚')
         return True
     
     async def update_reaction(self, reaction_event: discord.RawReactionActionEvent) -> bool:
