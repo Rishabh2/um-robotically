@@ -1,5 +1,5 @@
 import discord
-from games import RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, HiddenConnectionsGame, PointsGame
+from games import RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, HiddenConnectionsGame, PointsGame, EggsGame
 
 BOT_STUFF_ID = 1173819549326524537
 

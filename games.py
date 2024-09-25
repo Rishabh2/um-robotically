@@ -56,7 +56,7 @@ class PointsGame():
     async def update_reaction(self, reaction_event: discord.RawReactionActionEvent) -> bool:
         return True # No-op on reactions
 
-class EggGame():
+class EggsGame():
     def __init__(self, client: discord.Client, message: discord.Message) -> None:
         self.client = client
         self.author = message.author
