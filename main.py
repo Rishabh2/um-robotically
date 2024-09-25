@@ -116,6 +116,18 @@ class MyClient(discord.Client):
             await message.channel.send('Starting Points Game')
             return
         
+        if message.content.lower().startswith('!egg'):
+            # Start Egg
+            if any(message.author.id == game.author.id for game in self.games):
+                await message.channel.send('You have a game running')
+                return
+            if any(isinstance(game, EggsGame) and game.channel.id == message.channel.id and game.author.id != message.author.id for game in self.games):
+                await message.channel.send('There is a game of this type running in this channel')
+                return
+            self.games.add(EggsGame(self, message))
+            await message.channel.send('Egg')
+            return    
+        
         # Play each game, removing games that return False (done)
         self.games = {game async for game in async_update_message(self.games, message)}
         # Add a NMP if possible
