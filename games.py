@@ -16,6 +16,7 @@ class PointsGame():
         self.client = client
         self.author = message.author
         self.channel = message.channel
+        self.reacts = ['✅', 'Pointo']
         
         self.points_dict = defaultdict(int)
     
@@ -54,13 +55,25 @@ class PointsGame():
         return True
     
     async def update_reaction(self, reaction_event: discord.RawReactionActionEvent) -> bool:
-        return True # No-op on reactions
+        if reaction_event.channel_id != self.channel.id:
+            return True
+        
+        if reaction_event.user_id != self.author.id:
+            return True
+        
+        if reaction_event.emoji.name in self.reacts:
+            self.points_dict[reaction_event.message_author_id] += 1
+            await self.channel.get_partial_message(reaction_event.message_id).add_reaction('✍️')
+            return True
+        
+        return True
 
 class EggsGame():
     def __init__(self, client: discord.Client, message: discord.Message) -> None:
         self.client = client
         self.author = message.author
         self.channel = message.channel
+        self.reacts = ['✅', 'Pointo', '🥚']
         
         self.eggs_dict = defaultdict(int)
     
@@ -99,7 +112,18 @@ class EggsGame():
         return True
     
     async def update_reaction(self, reaction_event: discord.RawReactionActionEvent) -> bool:
-        return True # No-op on reactions
+        if reaction_event.channel_id != self.channel.id:
+            return True
+        
+        if reaction_event.user_id != self.author.id:
+            return True
+        
+        if reaction_event.emoji.name in self.reacts:
+            self.eggs_dict[reaction_event.message_author_id] += 1
+            await self.channel.get_partial_message(reaction_event.message_id).add_reaction('🥚')
+            return True
+        
+        return True
 
 class HiddenConnectionsGame():
     def __init__(self, client: discord.Client, message: discord.Message) -> None:
