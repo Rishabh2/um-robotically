@@ -71,7 +71,7 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!nmp'):
             # Start a Needs More Pixels game
-            if any(message.author.id == game.author.id for game in self.games):
+            if any(message.author.id == game.author.id and not isinstance(game, PointsGame) for game in self.games):
                 await message.channel.send('You have a game running')
                 return
             if any(isinstance(game, NeedsMorePixelsGame) for game in self.games):
