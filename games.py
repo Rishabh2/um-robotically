@@ -328,6 +328,15 @@ class RedactedGame():
     def __init__(self, client: discord.Client, message: discord.Message) -> None:
         self.client = client
         self.author = message.author
+        
+        self.text = RedactedGame.redact(message)
+        self.plain_text = self.text.replace('||', '')
+        self.tokens = set(re.findall(r'\|\|(.*?)\|\|', self.text))
+        
+        self.channel = client.get_partial_messageable(1173828105979318432)
+        self.message = None
+    
+    def redact(message: discord.Message) -> str:
         messageContent = message.content[message.content.find('\n')+1:].replace('’', "'")
         
         if message.content.lower().startswith('!manualredact'): #manual censoring
@@ -348,22 +357,17 @@ class RedactedGame():
                     newContent += line + '\n'
             messageContent = newContent
         
-        self.text = messageContent.replace('[','||').replace(']','||').replace('||||','')
-        self.plain_text = self.text.replace('||', '')
-        self.tokens = set(re.findall(r'\|\|(.*?)\|\|', self.text))
+        return messageContent.replace('[','||').replace(']','||').replace('||||','')
         
-        
-        self.channel = client.get_partial_messageable(1173828105979318432)
-        self.message = None
     
-    def censor(self) -> str:
+    def censor(text: str) -> str:
         pattern = r'\|\|.*?\|\|'
         drastic_pattern = r'\|\| \|\|'
-        censored = re.sub(pattern, '||XXX||', self.text)
+        censored = re.sub(pattern, '||XXX||', text)
         if len(censored) >= 2000:
-            censored = re.sub(pattern, '||XX||', self.text)
+            censored = re.sub(pattern, '||XX||', text)
         if len(censored) >= 2000:
-            censored = re.sub(pattern, '||X||', self.text)
+            censored = re.sub(pattern, '||X||', text)
         
         # if still busted, take drastic measures
         while (len(censored) >= 2000):
@@ -379,7 +383,7 @@ class RedactedGame():
         # Parse the !game and !end command in a DM or the game
         if (isinstance(message.channel, discord.DMChannel) and message.author.id == self.author.id) or message.channel.id == self.channel.id:
             if words[0].lower() == '!game':
-                self.message = await message.channel.send(self.censor())
+                self.message = await message.channel.send(RedactedGame.censor(self.text))
                 return True
             if words[0].lower() == '!end':
                 await message.channel.send('Game Canceled')
@@ -418,10 +422,10 @@ class RedactedGame():
             # Otherwise, no-op
             now = datetime.now(tz=timezone.utc)
             if (not self.message) or ((now - self.message.created_at) > timedelta(seconds=10)):
-                self.message = await message.channel.send(self.censor())
+                self.message = await message.channel.send(RedactedGame.censor(self.text))
             elif (not self.message.edited_at) or (self.message.edited_at and ((now - self.message.edited_at) > timedelta(seconds=1))):
                 await message.add_reaction('✍️')
-                await self.message.edit(content=self.censor())
+                await self.message.edit(content=RedactedGame.censor(self.text))
         if '||' in self.text:
             return True
         else:

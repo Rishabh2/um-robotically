@@ -91,6 +91,10 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!redact') or message.content.lower().startswith('!manualredact'):
             # Start a Redacted game
+            # ICheck if its just a redact test
+            if message.content.lower().split()[0].endswith('test'):
+                await message.channel.send(RedactedGame.censor(RedactedGame.redact(message)))
+                return
             if any(message.author.id == game.author.id for game in self.games):
                 await message.channel.send('You have a game running')
                 return
