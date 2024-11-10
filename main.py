@@ -2,6 +2,7 @@ import discord
 from games import RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, HiddenConnectionsGame, PointsGame, EggsGame
 
 BOT_STUFF_ID = 1173819549326524537
+H2_ID = 242558859300831232
 
 async def async_update_message(iterable, message: discord.Message):
     for item in iterable:
@@ -36,20 +37,22 @@ class MyClient(discord.Client):
             await message.channel.send('Hello 1.2')
             return
         
-        if message.content.startswith('!kill') and message.author.id == '242558859300831232':
-            quit()
+        if message.author.id == H2_ID:
+            if message.content.startswith('!kill'):
+                quit()
         if message.content.startswith('!owner'):
             for game in self.games:
                 if game.channel.id == message.channel.id:
                     await message.channel.send(game.author.mention)
             return
-            
+        if message.content.startswith('!games'):
+            games_fmt = '{type} from {owner} in <#{channel}>'
+            games_msg = '\n'.join(games_fmt.format(type=type(game).__name__, owner=game.author.mention, channel=game.channel.id) for game in self.games)
+            await message.channel.send(games_msg)
+            return
         
         if message.content.lower().startswith('!20q'):
             # Start a 20 questions game
-            if any(message.author.id == game.author.id for game in self.games):
-                await message.channel.send('You have a game running')
-                return
             if any(isinstance(game, TwentyQuestionsGame) for game in self.games):
                 await message.channel.send('There is a game of this type running')
                 return
@@ -59,9 +62,6 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!hc'):
             # Start a Hidden Connections game
-            if any(message.author.id == game.author.id for game in self.games):
-                await message.channel.send('You have a game running')
-                return
             if any(isinstance(game, HiddenConnectionsGame) for game in self.games):
                 await message.channel.send('There is a game of this type running')
                 return
@@ -71,9 +71,6 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!nmp'):
             # Start a Needs More Pixels game
-            if any(message.author.id == game.author.id and not isinstance(game, PointsGame) for game in self.games):
-                await message.channel.send('You have a game running')
-                return
             if any(isinstance(game, NeedsMorePixelsGame) for game in self.games):
                 newGame = NeedsMorePixelsGame(self, message)
                 await newGame.set_image(message.attachments[0])
@@ -91,12 +88,9 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!redact') or message.content.lower().startswith('!manualredact'):
             # Start a Redacted game
-            # ICheck if its just a redact test
+            # Check if its just a redact test
             if message.content.lower().split()[0].endswith('test'):
                 await message.channel.send(RedactedGame.censor(RedactedGame.redact(message)))
-                return
-            if any(message.author.id == game.author.id for game in self.games):
-                await message.channel.send('You have a game running')
                 return
             if any(isinstance(game, RedactedGame) for game in self.games):
                 await message.channel.send('There is a game of this type running')
@@ -110,9 +104,6 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!point'):
             # Start a Points game
-            if any(message.author.id == game.author.id for game in self.games):
-                await message.channel.send('You have a game running')
-                return
             if any(isinstance(game, PointsGame) and game.channel.id == message.channel.id and game.author.id != message.author.id for game in self.games):
                 await message.channel.send('There is a game of this type running in this channel')
                 return
@@ -122,9 +113,6 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!egg'):
             # Start Egg
-            if any(message.author.id == game.author.id for game in self.games):
-                await message.channel.send('You have a game running')
-                return
             if any(isinstance(game, EggsGame) and game.channel.id == message.channel.id and game.author.id != message.author.id for game in self.games):
                 await message.channel.send('There is a game of this type running in this channel')
                 return
