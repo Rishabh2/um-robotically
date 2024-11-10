@@ -46,8 +46,11 @@ class MyClient(discord.Client):
                     await message.channel.send(game.author.mention)
             return
         if message.content.startswith('!games'):
-            games_fmt = '{type} from {owner} in <#{channel}>'
-            games_msg = '\n'.join(games_fmt.format(type=type(game).__name__, owner=game.author.mention, channel=game.channel.id) for game in self.games)
+            if len(self.games) == 0:
+                games_msg = "There are no bot games running"
+            else:
+                games_fmt = '{type} from {owner} in <#{channel}>'
+                games_msg = '\n'.join(games_fmt.format(type=type(game).__name__, owner=game.author.mention, channel=game.channel.id) for game in self.games)
             await message.channel.send(games_msg)
             return
         
