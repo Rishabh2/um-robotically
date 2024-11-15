@@ -56,8 +56,8 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!20q'):
             # Start a 20 questions game
-            if any(isinstance(game, TwentyQuestionsGame) for game in self.games):
-                await message.channel.send('There is a game of this type running')
+            if any(isinstance(game, TwentyQuestionsGame) and game.channel.id == message.channel.id for game in self.games):
+                await message.channel.send('There is a game of this type running in this channel')
                 return
             self.games.add(TwentyQuestionsGame(self, message))
             await message.channel.send('Starting 20 questions')
@@ -65,8 +65,8 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!hc'):
             # Start a Hidden Connections game
-            if any(isinstance(game, HiddenConnectionsGame) for game in self.games):
-                await message.channel.send('There is a game of this type running')
+            if any(isinstance(game, HiddenConnectionsGame) and game.channel.id == message.channel.id for game in self.games):
+                await message.channel.send('There is a game of this type running in this channel')
                 return
             self.games.add(HiddenConnectionsGame(self, message))
             await message.channel.send('Starting Hidden Connections Game')
