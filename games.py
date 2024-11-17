@@ -462,7 +462,8 @@ class NeedsMorePixelsGame():
         if message.author.id == self.author.id or any(role.id == QUESTIONEER_ID for role in message.author.roles):
             if words[0].lower() == '!reveal':
                 self.image_file.seek(0)
-                await message.channel.send(file=discord.File(self.image_file, filename="nmp"+self.filetype))
+                is_spoiler = 'cw' in message.content.lower() or 'spoil' in message.content.lower()
+                await message.channel.send(file=discord.File(self.image_file, filename="nmp"+self.filetype, spoiler=is_spoiler))
                 return False
             if words[0].lower() == '!end':
                 await message.channel.send('Game Canceled')
