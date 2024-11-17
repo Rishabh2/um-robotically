@@ -107,7 +107,7 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!point'):
             # Start a Points game
-            if any(isinstance(game, PointsGame) and game.channel.id == message.channel.id and game.author.id != message.author.id for game in self.games):
+            if any(isinstance(game, PointsGame) and game.channel.id == message.channel.id for game in self.games):
                 await message.channel.send('There is a game of this type running in this channel')
                 return
             self.games.add(PointsGame(self, message))
@@ -116,7 +116,7 @@ class MyClient(discord.Client):
         
         if message.content.lower().startswith('!egg'):
             # Start Egg
-            if any(isinstance(game, EggsGame) and game.channel.id == message.channel.id and game.author.id != message.author.id for game in self.games):
+            if any(isinstance(game, EggsGame) and game.channel.id == message.channel.id for game in self.games):
                 await message.channel.send('There is a game of this type running in this channel')
                 return
             self.games.add(EggsGame(self, message))
