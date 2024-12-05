@@ -142,7 +142,7 @@ class HiddenConnectionsGame():
         self.message = None
     
     def status(self) -> str:
-        return f'Hidden Connections Theme: {self.theme}\n' + '\n'.join(f'> {i}. {answer}' for i, answer in enumerate(self.answers, 1))
+        return f'Theme: {self.theme}\n' + '\n'.join(f'> {i}. {answer}' for i, answer in enumerate(self.answers, 1))
     
     async def update_message(self, message: discord.Message) -> bool:
         if message.channel.id != self.channel.id:
