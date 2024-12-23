@@ -16,7 +16,7 @@ class PointsGame():
         self.client = client
         self.author = message.author
         self.channel = message.channel
-        self.reacts = ['✅', 'Pointo']
+        self.reacts = {'✅':'✍️', 'Pointo':'📝'}
         
         self.points_dict = defaultdict(int)
     
@@ -63,7 +63,7 @@ class PointsGame():
         
         if reaction_event.emoji.name in self.reacts:
             self.points_dict[reaction_event.message_author_id] += 1
-            await self.channel.get_partial_message(reaction_event.message_id).add_reaction('✍️')
+            await self.channel.get_partial_message(reaction_event.message_id).add_reaction(self.reacts[reaction_event.emoji.name])
             return True
         
         return True
