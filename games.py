@@ -456,7 +456,8 @@ class NeedsMorePixelsGame():
         
     async def update_message(self, message: discord.Message) -> bool:
         words = message.content.replace(',','').lower().split()
-        if message.channel.id != self.channel.id:
+        # Pass if message is not in NMP channel or DM with author
+        if not (message.channel.id == self.channel.id or (message.author.id == self.author.id and isinstance(message.channel, discord.DMChannel))):
             return True
         
         if message.author.id == self.author.id or any(role.id == QUESTIONEER_ID for role in message.author.roles):
