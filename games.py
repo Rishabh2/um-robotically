@@ -336,7 +336,8 @@ class RedactedGame():
         self.channel = client.get_partial_messageable(1173828105979318432)
         self.message = None
         command = message.content.lower().split()[0]
-        self.scores = defaultdict(int) if 'score' in command else None
+        self.is_scoregame = 'score' in command
+        self.scores = defaultdict(int) if self.is_scoregame else None
     
     def redact(message: discord.Message) -> str:
         messageContent = message.content[message.content.find('\n')+1:].replace('’', "'")
@@ -413,13 +414,13 @@ class RedactedGame():
                 if snow_stemmer.stem(re.sub(r'\W', '', word)) == snow_stemmer.stem(re.sub(r'\W', '', token)):
                     self.text = self.text.replace(f'||{token}||', token)
                     to_remove.add(token)
-                    if self.scores:
+                    if self.is_scoregame:
                         self.scores[message.author.id] += 1
                 if re.sub(r'\W', '', token).lower().endswith('in'):
                     if snow_stemmer.stem(re.sub(r'\W', '', word)) == snow_stemmer.stem(re.sub(r'\W', '', token+'g')):
                         self.text = self.text.replace(f'||{token}||', token)
                         to_remove.add(token)
-                        if self.scores:
+                        if self.is_scoregame:
                             self.scores[message.author.id] += 1
         self.tokens = self.tokens.difference(to_remove)
         if to_remove:
@@ -436,7 +437,7 @@ class RedactedGame():
             return True
         else:
             await message.channel.send('Congratulations!')
-            if self.scores:
+            if self.is_scoregame:
                 await message.channel.send('Score Totals:\n' + '\n'.join(f'<@{user_id}> with {points} words.' for user_id, points in sorted(self.scores.items(), key=lambda x: x[1])))
             return False
     
