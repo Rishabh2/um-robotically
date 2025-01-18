@@ -339,6 +339,9 @@ class RedactedGame():
         self.is_scoregame = 'score' in command
         self.scores = defaultdict(int) if self.is_scoregame else None
     
+    def status(self) -> str:
+        return 'Score Totals:\n' + '\n'.join(f'<@{user_id}> with {points} words.' for user_id, points in sorted(self.scores.items(), key=lambda x: x[1]))
+    
     def redact(message: discord.Message) -> str:
         messageContent = message.content[message.content.find('\n')+1:].replace('’', "'")
         
@@ -383,26 +386,26 @@ class RedactedGame():
         if len(words) == 0:
             return True
         
-        # Parse the !game and !end command in a DM or the game
-        if (isinstance(message.channel, discord.DMChannel) and message.author.id == self.author.id) or message.channel.id == self.channel.id:
-            if words[0].lower() == '!game':
-                self.message = await message.channel.send(RedactedGame.censor(self.text))
-                return True
-            if words[0].lower() == '!end':
+        # Mod/Owner commands: !end, !reveal, !score
+        if (isinstance(message.channel, discord.DMChannel) and message.author.id == self.author.id) or (message.channel.id == self.channel.id and (message.author.id == self.author.id or any(role.id == QUESTIONEER_ID for role in message.author.roles))):
+            if words[0].lower().startswith('!end'):
                 await message.channel.send('Game Canceled')
                 return False
+            if words[0].lower().startswith('!score'):
+                await message.channel.send(self.status())
+                return True
+            if words[0].lower().startswith('!reveal'):
+                await message.channel.send(self.plain_text)
+                return False
+            
         # Don't process messages outside the game channel
         if message.channel.id != self.channel.id:
             return True
         
-        # Let the game creator or mod end the game
-        if message.author.id == self.author.id or any(role.id == QUESTIONEER_ID for role in message.author.roles):
-            if words[0].lower() == '!reveal':
-                await message.channel.send(self.plain_text)
-                return False
-            if words[0].lower() == '!end':
-                await message.channel.send('Game Canceled')
-                return False
+        # Public commands: !game
+        if words[0].lower().startswith('!game'):
+            self.message = await message.channel.send(RedactedGame.censor(self.text))
+            return True
         
         # Don't process words by the game creator
         if message.author.id == self.author.id:
@@ -438,7 +441,7 @@ class RedactedGame():
         else:
             await message.channel.send('Congratulations!')
             if self.is_scoregame:
-                await message.channel.send('Score Totals:\n' + '\n'.join(f'<@{user_id}> with {points} words.' for user_id, points in sorted(self.scores.items(), key=lambda x: x[1])))
+                await message.channel.send(self.status())
             return False
     
     async def update_reaction(self, reaction_event: discord.RawReactionActionEvent) -> bool:
