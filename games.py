@@ -169,11 +169,12 @@ class HiddenConnectionsGame():
                 new_answer = new_clue
                 # check if number is a subindex (1a)
                 if ord('a') <= ord(number[-1]) and ord(number[-1]) <= ord('z'):
+                    number, letter = number[:-1], number[-1]
                     # Split row into sections
-                    clue_sections = self.clues[int(row)-1].split(sep=' + ')
-                    clue_sections[ord(number[-1])-ord('a')] = new_clue
-                    answer_sections = self.answers[int(row)-1].split(sep=' + ')
-                    answer_sections[ord(number[-1])-ord('a')] = new_clue
+                    clue_sections = self.clues[int(number)-1].split(sep=' + ')
+                    clue_sections[ord(letter)-ord('a')] = new_clue
+                    answer_sections = self.answers[int(number)-1].split(sep=' + ')
+                    answer_sections[ord(letter)-ord('a')] = new_clue
                     # Combine the results
                     new_clue = ' + '.join(section.strip() for section in clue_sections)
                     new_answer = ' + '.join(section.strip() for section in answer_sections)
