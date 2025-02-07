@@ -40,6 +40,10 @@ class MyClient(discord.Client):
         if message.author.id == H2_ID:
             if message.content.startswith('!kill'):
                 quit()
+            if message.content.startswith('!send'):
+                _, channel, to_send = message.content.split(maxsplit=2)
+                channel = self.get_partial_messageable(int(channel))
+                await channel.send(content=to_send)
         if message.content.startswith('!owner'):
             for game in self.games:
                 if game.channel.id == message.channel.id:
