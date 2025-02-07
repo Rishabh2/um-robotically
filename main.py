@@ -24,6 +24,7 @@ class MyClient(discord.Client):
         print(f'Logged on as {self.user}!')
         self.games = set()
         self.game_queue = []
+        await client.change_presence(activity=discord.Game('!commands'))
         
     async def on_raw_reaction_add(self, reaction_event: discord.RawReactionActionEvent):
         # Play each game, removing games that return False (done)
@@ -35,6 +36,10 @@ class MyClient(discord.Client):
         
         if message.content.startswith('!hello'):
             await message.channel.send('Hello 1.2')
+            return
+        
+        if message.content.startswith('!commands'):
+            await message.channel.send('https://docs.google.com/document/d/1UUlaKuYEcimaRWvfkYJSa9McEC7350_wQTeRJYcJqno/edit?usp=sharing')
             return
         
         if message.author.id == H2_ID:
