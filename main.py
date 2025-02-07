@@ -1,4 +1,5 @@
 import discord
+import random
 from games import RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, HiddenConnectionsGame, PointsGame, EggsGame
 
 BOT_STUFF_ID = 1173819549326524537
@@ -24,6 +25,8 @@ class MyClient(discord.Client):
         print(f'Logged on as {self.user}!')
         self.games = set()
         self.game_queue = []
+        self.send_access_id = None
+        self.send_count = 0
         await client.change_presence(activity=discord.Game('!commands'))
         
     async def on_raw_reaction_add(self, reaction_event: discord.RawReactionActionEvent):
@@ -42,6 +45,12 @@ class MyClient(discord.Client):
             await message.channel.send('https://docs.google.com/document/d/1UUlaKuYEcimaRWvfkYJSa9McEC7350_wQTeRJYcJqno/edit?usp=sharing')
             return
         
+        if message.content.startswith('!speak'):
+            if random.randrange(1000) == 0:
+                self.send_access = message.author.id
+                self.send_count = 3
+                await message.channel.send('Congratulations')
+        
         if message.author.id == H2_ID:
             if message.content.startswith('!kill'):
                 quit()
@@ -49,6 +58,13 @@ class MyClient(discord.Client):
                 _, channel, to_send = message.content.split(maxsplit=2)
                 channel = self.get_partial_messageable(int(channel))
                 await channel.send(content=to_send)
+        if message.author.id == self.send_access_id and message.content.startswith('!send'):
+            _, channel, to_send = message.content.split(maxsplit=2)
+            channel = self.get_partial_messageable(int(channel))
+            await channel.send(content=to_send)
+            self.send_count -= 1
+            if self.send_count <= 0:
+                self.send_access = None
         if message.content.startswith('!owner'):
             for game in self.games:
                 if game.channel.id == message.channel.id:
