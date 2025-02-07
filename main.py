@@ -47,7 +47,7 @@ class MyClient(discord.Client):
         
         if message.content.startswith('!speak'):
             if random.randrange(1000) == 0:
-                self.send_access = message.author.id
+                self.send_access_id = message.author.id
                 self.send_count = 3
                 await message.channel.send('Congratulations')
         
