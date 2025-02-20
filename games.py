@@ -493,7 +493,6 @@ class NeedsMorePixelsGame():
             pixelfactor = self.resize_values[self.current_round - 1]
             imgSmall = img.resize(pixelfactor, resample=Image.Resampling.BILINEAR)
             imgBig = imgSmall.resize(img.size, Image.Resampling.NEAREST)
-            self.current_round += 1
             return imgBig
         return None
     
@@ -531,7 +530,8 @@ class NeedsMorePixelsGame():
                     newImg = io.BytesIO()
                     nextImg.save(newImg, self.filetype[1:])
                     newImg.seek(0)
-                    await message.channel.send(f'Round {self.current_round - 1}/{self.round_count}', file=discord.File(newImg, filename="nmp"+self.filetype))
+                    await message.channel.send(f'Round {self.current_round}/{self.round_count}', file=discord.File(newImg, filename="nmp"+self.filetype))
+                    self.current_round += 1
                     return True
                 else:
                     self.image_file.seek(0)
