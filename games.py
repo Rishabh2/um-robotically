@@ -513,7 +513,6 @@ class NeedsMorePixelsGame():
                 make_gif = 'gif' in message.content.lower()
                 if make_gif:
                     images = []
-                    self.current_round = 1 # Reset round so gif has all levels
                     while newImg := self.get_next_image():
                         images.append(newImg)
                     final_gif = io.BytesIO()
