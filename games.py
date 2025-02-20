@@ -516,7 +516,6 @@ class NeedsMorePixelsGame():
                     self.current_round = 1 # Reset round so gif has all levels
                     while newImg := self.get_next_image():
                         images.append(newImg)
-                    images.append(Image.open(self.image_file))
                     final_gif = io.BytesIO()
                     images[0].save(final_gif, format="gif", save_all=True, append_images=images[1:], duration=500)
                     final_gif.seek(0)
