@@ -477,24 +477,24 @@ class NeedsMorePixelsGame():
     
     def get_next_image(self) -> Image:
         self.image_file.seek(0)
-        with Image.open(self.image_file) as img:
-            # Calculate the resize values on the first round
-            if not self.resize_values:
-                if img.width < img.height:
-                    total_mult_factor = img.width / 5 # Start with 5 boxes
-                    individual_mult_factor = pow(total_mult_factor, 1 / (self.round_count - 1))
-                    self.resize_values = [(int(5 * pow(individual_mult_factor, i)), int((5 * pow(individual_mult_factor, i) * img.height) // img.width)) for i in range(self.round_count)]
-                else:
-                    total_mult_factor = img.height / 5 # Start with 5 boxes
-                    individual_mult_factor = pow(total_mult_factor, 1 / (self.round_count - 1))
-                    self.resize_values = [(int((5 * pow(individual_mult_factor, i) * img.width) // img.height), int(5 * pow(individual_mult_factor, i))) for i in range(self.round_count)]
-                self.current_round = 1    
-            if self.current_round <= self.round_count:
-                pixelfactor = self.resize_values[self.current_round - 1]
-                imgSmall = img.resize(pixelfactor, resample=Image.Resampling.BILINEAR)
-                imgBig = imgSmall.resize(img.size, Image.Resampling.NEAREST)
-                self.current_round += 1
-                return imgBig
+        img = Image.open(self.image_file)
+        # Calculate the resize values on the first round
+        if not self.resize_values:
+            if img.width < img.height:
+                total_mult_factor = img.width / 5 # Start with 5 boxes
+                individual_mult_factor = pow(total_mult_factor, 1 / (self.round_count - 1))
+                self.resize_values = [(int(5 * pow(individual_mult_factor, i)), int((5 * pow(individual_mult_factor, i) * img.height) // img.width)) for i in range(self.round_count)]
+            else:
+                total_mult_factor = img.height / 5 # Start with 5 boxes
+                individual_mult_factor = pow(total_mult_factor, 1 / (self.round_count - 1))
+                self.resize_values = [(int((5 * pow(individual_mult_factor, i) * img.width) // img.height), int(5 * pow(individual_mult_factor, i))) for i in range(self.round_count)]
+            self.current_round = 1    
+        if self.current_round <= self.round_count:
+            pixelfactor = self.resize_values[self.current_round - 1]
+            imgSmall = img.resize(pixelfactor, resample=Image.Resampling.BILINEAR)
+            imgBig = imgSmall.resize(img.size, Image.Resampling.NEAREST)
+            self.current_round += 1
+            return imgBig
         return None
     
     async def set_image(self, attachment: discord.Attachment) -> None:
@@ -516,12 +516,11 @@ class NeedsMorePixelsGame():
                     self.current_round = 1 # Reset round so gif has all levels
                     while newImg := self.get_next_image():
                         images.append(newImg)
-                    with Image.open(self.image_file) as final_img:
-                        images.append(final_img)
-                        final_gif = io.BytesIO()
-                        images[0].save(final_gif, format="gif", save_all=True, append_images=images[1:], duration=200)
-                        final_gif.seek(0)
-                        await message.channel.send(file=discord.File(final_gif, filename="nmp.gif", spoiler=is_spoiler))    
+                    images.append(Image.open(self.image_file))
+                    final_gif = io.BytesIO()
+                    images[0].save(final_gif, format="gif", save_all=True, append_images=images[1:], duration=200)
+                    final_gif.seek(0)
+                    await message.channel.send(file=discord.File(final_gif, filename="nmp.gif", spoiler=is_spoiler))    
                 else:
                     await message.channel.send(file=discord.File(self.image_file, filename="nmp"+self.filetype, spoiler=is_spoiler))
                 return False
