@@ -79,25 +79,7 @@ class MyClient(discord.Client):
             await message.channel.send(games_msg)
             return
         
-        if message.content.lower().startswith('!20q'):
-            # Start a 20 questions game
-            if any(isinstance(game, TwentyQuestionsGame) and game.channel.id == message.channel.id for game in self.games):
-                await message.channel.send('There is a game of this type running in this channel')
-                return
-            self.games.add(TwentyQuestionsGame(self, message))
-            await message.channel.send('Starting 20 questions')
-            return
-        
-        if message.content.lower().startswith('!hc'):
-            # Start a Hidden Connections game
-            if any(isinstance(game, HiddenConnectionsGame) and game.channel.id == message.channel.id for game in self.games):
-                await message.channel.send('There is a game of this type running in this channel')
-                return
-            self.games.add(HiddenConnectionsGame(self, message))
-            await message.channel.send('Starting Hidden Connections Game')
-            return
-        
-        if message.content.lower().startswith('!nmp'):
+        if message.content.lower().startswith('!h2nmp'):
             # Start a Needs More Pixels game
             if any(isinstance(game, NeedsMorePixelsGame) for game in self.games):
                 newGame = NeedsMorePixelsGame(self, message)
@@ -113,40 +95,6 @@ class MyClient(discord.Client):
             self.games.add(newGame)
             await message.channel.send('Starting Needs More Pixels')
             return
-        
-        if message.content.lower().startswith('!redact') or message.content.lower().startswith('!manualredact'):
-            # Start a Redacted game
-            # Check if its just a redact test
-            if message.content.lower().split()[0].endswith('test'):
-                await message.channel.send(RedactedGame.censor(RedactedGame.redact(message)))
-                return
-            if any(isinstance(game, RedactedGame) for game in self.games):
-                await message.channel.send('There is a game of this type running')
-                return
-            if len(message.content) >= 2000:
-                await message.channel.send('Your game is too long, there is a 2000 character limit')
-                return
-            self.games.add(RedactedGame(self, message))
-            await message.channel.send('Starting Redacted Game')
-            return
-        
-        if message.content.lower().startswith('!point'):
-            # Start a Points game
-            if any(isinstance(game, PointsGame) and game.channel.id == message.channel.id for game in self.games):
-                await message.channel.send('There is a game of this type running in this channel')
-                return
-            self.games.add(PointsGame(self, message))
-            await message.channel.send('Starting Points Game')
-            return
-        
-        if message.content.lower().startswith('!egg'):
-            # Start Egg
-            if any(isinstance(game, EggsGame) and game.channel.id == message.channel.id for game in self.games):
-                await message.channel.send('There is a game of this type running in this channel')
-                return
-            self.games.add(EggsGame(self, message))
-            await message.channel.send('Egg')
-            return    
         
         # Play each game, removing games that return False (done)
         self.games = {game async for game in async_update_message(self.games, message)}
