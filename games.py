@@ -463,7 +463,7 @@ class NeedsMorePixelsGame():
     def __init__(self, client: discord.Client, message: discord.Message) -> None:
         self.client = client
         self.author = message.author
-        self.channel = client.get_partial_messageable(1173827731079827586) # NMP channel
+        self.channel = client.get_partial_messageable(1173819549326524537) # NMP channel
         self.image_file = io.BytesIO()
         self.filetype = os.path.splitext(message.attachments[0].filename)[-1]
         if self.filetype.lower() == ".jpg":
@@ -518,7 +518,7 @@ class NeedsMorePixelsGame():
                         images.append(newImg)
                     images.append(Image.open(self.image_file))
                     final_gif = io.BytesIO()
-                    images[0].save(final_gif, format="gif", save_all=True, append_images=images[1:], duration=500)
+                    images[0].save(final_gif, format="gif", save_all=True, append_images=images[1:], duration=200)
                     final_gif.seek(0)
                     await message.channel.send(file=discord.File(final_gif, filename="nmp.gif", spoiler=is_spoiler))    
                 else:
