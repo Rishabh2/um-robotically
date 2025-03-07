@@ -146,7 +146,7 @@ class HiddenConnectionsGame(Game):
         self.puzzle = []
         for row in self.rows:
             row.append("")
-            self.puzzle.append(row)
+            self.puzzle.append(row[:])
     
     def status(self) -> str:
         return f'Theme: {self.theme}\n' + '\n'.join(f'> {i}. ' + " + ".join(row[:-1]) +  (f' - *{row[-1]}*' if row[-1] else '') for i, row in enumerate(self.rows, 1))
@@ -171,8 +171,8 @@ class HiddenConnectionsGame(Game):
                 row_number, new_row = message.content[4:].split(maxsplit=1)
                 new_row = new_row.split(' + ')
                 new_row.append("")
-                self.rows.insert(int(row_number)-1, new_row)
-                self.puzzle.insert(int(row_number)-1, new_row)
+                self.rows.insert(int(row_number)-1, new_row[:])
+                self.puzzle.insert(int(row_number)-1, new_row[:])
                 await message.add_reaction('✍️')
                 if self.message:
                     await self.message.edit(content=self.status())
@@ -195,7 +195,7 @@ class HiddenConnectionsGame(Game):
                     row_number = int(row_number) - 1
                     self.puzzle[row_number] = edit.split(' + ')
                     self.puzzle[row_number].append('')
-                self.rows[row_number] = self.puzzle[row_number]
+                self.rows[row_number] = self.puzzle[row_number][:]
                 await message.add_reaction('✍️')
                 if self.message:
                     await self.message.edit(content=self.status())
@@ -215,9 +215,9 @@ class HiddenConnectionsGame(Game):
         if content.startswith('!rowtheme'):
             rowtheme = message.content[9:].split(maxsplit=1)
             if len(rowtheme) == 1: # Blank rowtheme, erase the row theme
-                row_number, theme = int(content[0]) - 1, ""
+                row_number, theme = int(rowtheme[0]) - 1, ""
             else:
-                row_number, theme = message.content[9:].split(maxsplit=1)
+                row_number, theme = rowtheme
                 row_number = int(row_number) - 1
             self.rows[row_number][-1] = theme
             await message.add_reaction('✍️')
@@ -225,8 +225,8 @@ class HiddenConnectionsGame(Game):
                 await self.message.edit(content=self.status())
             return
         if content.startswith('!clear'):
-            row_number = int(content[7:]) - 1
-            self.rows[row_number] = self.puzzle[row_number]
+            row_number = int(content[6:]) - 1
+            self.rows[row_number] = self.puzzle[row_number][:]
             await message.add_reaction('✍️')
             if self.message:
                 await self.message.edit(content=self.status())
