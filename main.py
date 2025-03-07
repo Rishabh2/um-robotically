@@ -1,9 +1,10 @@
 import discord
 import random
-from games import RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, HiddenConnectionsGame, PointsGame, EggsGame
+from games import Game, RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, HiddenConnectionsGame, PointsGame, EggsGame
 
 BOT_STUFF_ID = 1173819549326524537
 H2_ID = 242558859300831232
+DEBUG = False
 
 async def async_update_message(iterable, message: discord.Message):
     for item in iterable:
@@ -22,20 +23,30 @@ with open("discord.token", "r") as token_file:
 
 class MyClient(discord.Client):
     async def on_ready(self):
-        print(f'Logged on as {self.user}!')
-        self.games = set()
+        print(f'Logged on as {self.user}! {DEBUG=}')
+        self.games: set[Game] = set()
         self.game_queue = []
         self.send_access_id = None
         self.send_count = 0
         await client.change_presence(activity=discord.Game('!commands'))
         
     async def on_raw_reaction_add(self, reaction_event: discord.RawReactionActionEvent):
-        # Play each game, removing games that return False (done)
-        self.games = {game async for game in async_update_reaction(self.games, reaction_event)}
+        # Play each game, then remove any inactive games
+        for game in self.games:
+            await game.update_reaction(reaction_event)
+        self.games = {game for game in self.games if game.active}
 
     async def on_message(self, message: discord.Message):
         if message.author == self.user:
             return
+        
+        # In debug mode, only process d! commands from H2
+        if DEBUG:
+            if message.author.id != H2_ID:
+                return
+            if not message.content.startswith('d'):
+                return
+            message.content = message.content[1:]
         
         if message.content.startswith('!hello'):
             await message.channel.send('Hello 1.2')
@@ -148,8 +159,10 @@ class MyClient(discord.Client):
             await message.channel.send('Egg')
             return    
         
-        # Play each game, removing games that return False (done)
-        self.games = {game async for game in async_update_message(self.games, message)}
+        # Play each game, then remove any inactive games
+        for game in self.games:
+            await game.update_message(message)
+        self.games = {game for game in self.games if game.active}
         # Add a NMP if possible
         if len(self.game_queue) > 0 and not any(isinstance(game, NeedsMorePixelsGame) for game in self.games):
             newGame = self.game_queue.pop(0)
