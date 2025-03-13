@@ -160,6 +160,10 @@ class HiddenConnectionsGame(Game):
         if content.startswith('!game'):
             self.message = await message.channel.send(self.status())
             return
+        if content.startswith('!debug'):
+            print(self.theme)
+            print(self.rows)
+            print(self.puzzle)
         
         # Mod and Author actions (end, add, edit, delete)
         if (message.author.id == self.author.id or any(role.id == QUESTIONEER_ID for role in message.author.roles)):
@@ -235,9 +239,9 @@ class HiddenConnectionsGame(Game):
             row_number, solution = message.content[6:].split(maxsplit=1)
             row_number = int(row_number) - 1
             # Check if solution contains a rowtheme
-            if hint := re.search(r"- ?\*(.*)\*$", solution):
+            if hint := re.search(r" - \*(.+)\*$", solution):
                 rowtheme = hint.group(1)
-                solution = solution[len(hint.group()) * -1]
+                solution = solution[:len(hint.group()) * -1]
             else:
                 rowtheme = self.rows[row_number][-1]
             solution = solution.split(' + ')
