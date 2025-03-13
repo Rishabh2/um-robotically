@@ -4,6 +4,7 @@ from games import Game, RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, 
 
 BOT_STUFF_ID = 1173819549326524537
 H2_ID = 242558859300831232
+MOD_UPDATES_ID = 1208125017217568869
 DEBUG = False
 
 async def async_update_message(iterable, message: discord.Message):
@@ -60,6 +61,8 @@ class MyClient(discord.Client):
             if random.randrange(1000) == 0:
                 self.send_access_id = message.author.id
                 self.send_count = 3
+                mod_update_channel = client.get_partial_messageable(MOD_UPDATES_ID)
+                await mod_update_channel.send(f'{message.author.mention} has unlocked !send power')
                 await message.channel.send('Congratulations')
         
         if message.author.id == H2_ID:
