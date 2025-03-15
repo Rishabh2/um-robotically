@@ -229,8 +229,13 @@ class HiddenConnectionsGame(Game):
                 await self.message.edit(content=self.status())
             return
         if content.startswith('!clear'):
-            row_number = int(content[6:]) - 1
-            self.rows[row_number] = self.puzzle[row_number][:]
+            row_number = content[6:]
+            if ord('a') <= ord(row_number[-1]) and ord(row_number[-1]) <= ord('z'):
+                row_number, index = int(row_number[:-1]) - 1, ord(row_number[-1]) - ord('a')
+                self.rows[row_number][index] = self.puzzle[row_number][index]
+            else:
+                row_number = int(content[6:]) - 1
+                self.rows[row_number] = self.puzzle[row_number][:]
             await message.add_reaction('✍️')
             if self.message:
                 await self.message.edit(content=self.status())
