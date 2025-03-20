@@ -7,18 +7,6 @@ H2_ID = 242558859300831232
 MOD_UPDATES_ID = 1208125017217568869
 DEBUG = False
 
-async def async_update_message(iterable, message: discord.Message):
-    for item in iterable:
-        should_yield = await item.update_message(message)
-        if should_yield:
-            yield item
-
-async def async_update_reaction(iterable, reaction_event: discord.RawReactionActionEvent):
-    for item in iterable:
-        should_yield = await item.update_reaction(reaction_event)
-        if should_yield:
-            yield item
-
 with open("discord.token", "r") as token_file:
     token = token_file.read()
 
@@ -34,7 +22,19 @@ class MyClient(discord.Client):
     async def on_raw_reaction_add(self, reaction_event: discord.RawReactionActionEvent):
         # Play each game, then remove any inactive games
         for game in self.games:
-            await game.update_reaction(reaction_event)
+            try:
+                await game.update_reaction(reaction_event)
+            except discord.errors.HTTPException as exp:
+                channel = client.get_partial_messageable(reaction_event.channel_id)
+                if exp.code == 50035:
+                    msg = 'Error: The message trying to be sent is too long'
+                else:
+                    msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
+                await channel.send(msg)
+            except Exception as exp:
+                channel = client.get_partial_messageable(reaction_event.channel_id)
+                msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
+                await channel.send(msg)
         self.games = {game for game in self.games if game.active}
 
     async def on_message(self, message: discord.Message):
@@ -164,7 +164,19 @@ class MyClient(discord.Client):
         
         # Play each game, then remove any inactive games
         for game in self.games:
-            await game.update_message(message)
+            try:
+                await game.update_message(message)
+            except discord.errors.HTTPException as exp:
+                channel = message.channel
+                if exp.code == 50035:
+                    msg = 'Error: The message trying to be sent is too long'
+                else:
+                    msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
+                await channel.send(msg)
+            except Exception as exp:
+                channel = message.channel
+                msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
+                await channel.send(msg)
         self.games = {game for game in self.games if game.active}
         # Add a NMP if possible
         if len(self.game_queue) > 0 and not any(isinstance(game, NeedsMorePixelsGame) for game in self.games):
