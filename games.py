@@ -278,6 +278,8 @@ class TwentyQuestionsGame(Game):
         else:
             self.image_embed = None
         self.message: discord.Message = None
+        theme_index = message.content.find(" ") + 1
+        self.theme = message.content[theme_index:] if theme_index else 'Twenty Questions'
     
     async def update_message(self, message: discord.Message) -> None:
         if message.channel.id != self.channel.id:
@@ -292,8 +294,23 @@ class TwentyQuestionsGame(Game):
             if content.startswith('!end'):
                 await message.channel.send('Ending Twenty Questions')
                 self.active = False
+            if content.startswith('!theme'):
+                themetext = message.content.split(maxsplit=1)
+                if len(themetext) == 1: # blank !theme, reset
+                    self.theme = 'Twenty Questions'
+                else:
+                    self.theme = themetext[1]
+                await message.add_reaction('✍️')
+                if self.message:
+                    await self.message.edit(content=self.status())
             if content.startswith('!delete'):
-                await message.channel.send(f'Deleted {self.questions.pop()}')
+                if len(content) > 7:
+                    row_number = int(content[7:])-1
+                    await message.channel.send(f'Deleted {self.questions.pop(row_number)}')
+                else:
+                    await message.channel.send(f'Deleted {self.questions.pop()}')
+                if self.message:
+                    await self.message.edit(content=self.status())
     
     async def update_reaction(self, reaction_event: discord.RawReactionActionEvent) -> None:
         if reaction_event.user_id != self.author.id:
@@ -320,7 +337,7 @@ class TwentyQuestionsGame(Game):
             return
             
     def status(self) -> str:
-        return 'Twenty Questions:\n' + '\n'.join(self.questions)
+        return self.theme + '\n' + '\n'.join(f'> {i}. {question}' for i, question in enumerate(self.questions, 1))
             
 class RedactedGame(Game):
     def __init__(self, client: discord.Client, message: discord.Message) -> None:
