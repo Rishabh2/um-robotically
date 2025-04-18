@@ -31,6 +31,14 @@ class MyClient(discord.Client):
                 else:
                     msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
                 await channel.send(msg)
+            except IndexError as exp:
+                channel = client.get_partial_messageable(reaction_event.channel_id)
+                msg = 'There was a problem with your command.'
+                await channel.send(msg)
+            except ValueError as exp:
+                channel = client.get_partial_messageable(reaction_event.channel_id)
+                msg = 'There was a problem with your command.'
+                await channel.send(msg)
             except Exception as exp:
                 channel = client.get_partial_messageable(reaction_event.channel_id)
                 msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
@@ -172,6 +180,14 @@ class MyClient(discord.Client):
                     msg = 'Error: The message trying to be sent is too long'
                 else:
                     msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
+                await channel.send(msg)
+            except IndexError as exp:
+                channel = message.channel
+                msg = 'There was a problem with your command.'
+                await channel.send(msg)
+            except ValueError as exp:
+                channel = message.channel
+                msg = 'There was a problem with your command.'
                 await channel.send(msg)
             except Exception as exp:
                 channel = message.channel
