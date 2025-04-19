@@ -29,7 +29,7 @@ class MyClient(discord.Client):
                 if exp.code == 50035:
                     msg = 'Error: The message trying to be sent is too long'
                 else:
-                    msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
+                    msg = f'An unexpected error occurred.\n{exp}'
                 await channel.send(msg)
             except IndexError as exp:
                 channel = client.get_partial_messageable(reaction_event.channel_id)
@@ -41,7 +41,7 @@ class MyClient(discord.Client):
                 await channel.send(msg)
             except Exception as exp:
                 channel = client.get_partial_messageable(reaction_event.channel_id)
-                msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
+                msg = f'An unexpected error occurred.\n{exp}'
                 await channel.send(msg)
         self.games = {game for game in self.games if game.active}
 
@@ -179,7 +179,7 @@ class MyClient(discord.Client):
                 if exp.code == 50035:
                     msg = 'Error: The message trying to be sent is too long'
                 else:
-                    msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
+                    msg = f'An unexpected error occurred.\n{exp}'
                 await channel.send(msg)
             except IndexError as exp:
                 channel = message.channel
@@ -191,7 +191,7 @@ class MyClient(discord.Client):
                 await channel.send(msg)
             except Exception as exp:
                 channel = message.channel
-                msg = f'An unexpected error occurred. <@{H2_ID}>\n{exp}'
+                msg = f'An unexpected error occurred.\n{exp}'
                 await channel.send(msg)
         self.games = {game for game in self.games if game.active}
         # Add a NMP if possible
