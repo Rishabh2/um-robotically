@@ -51,11 +51,15 @@ class PointsGame(Game):
             await message.channel.send(self.status(), silent=True)
             return
         
-        if not content.startswith('!p'):
+        if not (content.startswith('!p') or content.startswith('!r')):
             return
         
         if len(message.raw_mentions) == 0:
             await message.channel.send(self.status(), silent=True)
+        elif content.startswith('!r'):
+            for user_id in message.raw_mentions:
+                self.points_dict[user_id] = 0
+            await message.add_reaction('✍️')
         else:
             point_value = re.search(r'[\d-]+$', message.content.lower().split()[0])
             if not point_value:
@@ -483,18 +487,19 @@ class NeedsMorePixelsGame(Game):
         if not (message.channel.id == self.channel.id or (message.author.id == self.author.id and isinstance(message.channel, discord.DMChannel))):
             return
         
+        content = message.content.lower()
         if message.author.id == self.author.id or any(role.id == QUESTIONEER_ID for role in message.author.roles):
-            if words[0].lower().startswith('!reveal'):
+            if content.startswith('!reveal'):
                 self.image_file.seek(0)
-                is_spoiler = 'cw' in message.content.lower() or 'spoil' in message.content.lower()
+                is_spoiler = 'cw' in content or 'spoil' in content
                 await message.channel.send(file=discord.File(self.image_file, filename="nmp"+self.filetype, spoiler=is_spoiler))
                 self.active = False
                 return
-            if words[0].lower() == '!end':
+            if content.startswith('!end'):
                 await message.channel.send('Game Canceled')
                 self.active = False
                 return
-            if words[0].lower() == '!next':
+            if content.startswith('!next'):
                 self.image_file.seek(0)
                 img = Image.open(self.image_file)
                 # Calculate the resize values on the first round
