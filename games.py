@@ -150,6 +150,7 @@ class HiddenConnectionsGame(Game):
         self.theme = theme[theme_index:] if theme_index else '???'
         
         # Rows are stored as arrays of individual clues, with the final clue being the optional rowtheme
+        # Rows stores the solving puzzle, puzzle is the base
         self.rows = [line.split(' + ') for line in lines[1:]]
         self.puzzle = []
         for row in self.rows:
@@ -203,11 +204,12 @@ class HiddenConnectionsGame(Game):
                 if ord('a') <= ord(row_number[-1]) and ord(row_number[-1]) <= ord('z'):
                     row_number, index = int(row_number[:-1]) - 1, ord(row_number[-1]) - ord('a')
                     self.puzzle[row_number][index] = edit
+                    self.rows[row_number][index] = edit
                 else:
                     row_number = int(row_number) - 1
                     self.puzzle[row_number] = edit.split(' + ')
                     self.puzzle[row_number].append('')
-                self.rows[row_number] = self.puzzle[row_number][:]
+                    self.rows[row_number] = self.puzzle[row_number][:]
                 await message.add_reaction('✍️')
                 if self.message:
                     await self.message.edit(content=self.status())
