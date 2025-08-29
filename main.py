@@ -5,7 +5,7 @@ from games import Game, RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, 
 BOT_STUFF_ID = 1173819549326524537
 H2_ID = 242558859300831232
 MOD_UPDATES_ID = 1208125017217568869
-DEBUG = False
+DEBUG = True
 
 with open("discord.token", "r") as token_file:
     token = token_file.read()
@@ -150,6 +150,8 @@ class MyClient(discord.Client):
                 return
             self.games.add(RedactedGame(self, message))
             await message.channel.send('Starting Redacted Game')
+            score = 'is' if ('score' in message.content.lower() or 'point' in message.content.lower()) else 'isn\'t'
+            await message.channel.send(f'This game {score} keeping track of scores')
             return
         
         if message.content.lower().startswith('!point'):

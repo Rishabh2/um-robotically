@@ -377,7 +377,7 @@ class RedactedGame(Game):
         self.channel = client.get_partial_messageable(1173828105979318432)
         self.message = None
         command = message.content.lower().split()[0]
-        self.is_scoregame = 'score' in command
+        self.is_scoregame = 'score' in command or 'point' in command
         self.scores = defaultdict(int) if self.is_scoregame else None
     
     def status(self) -> str:
