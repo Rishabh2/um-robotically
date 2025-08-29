@@ -5,7 +5,7 @@ from games import Game, RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, 
 BOT_STUFF_ID = 1173819549326524537
 H2_ID = 242558859300831232
 MOD_UPDATES_ID = 1208125017217568869
-DEBUG = True
+DEBUG = False
 
 with open("discord.token", "r") as token_file:
     token = token_file.read()
