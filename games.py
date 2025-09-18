@@ -28,7 +28,11 @@ class PointsGame(Game):
     def __init__(self, client: discord.Client, message: discord.Message) -> None:
         Game.__init__(self, client, message)
         
-        self.reacts = {'✅':'✍️', 'Pointo':'📝'}
+        self.reacts = {
+            '✅':('✍️', 1),
+            'Pointo':('📝', 1),
+            'nopointo':('🤏', -1),
+            'VeryNoPointo':('🙏', -1)}
         self.points_dict = defaultdict(int)
     
     def status(self) -> str:
@@ -78,8 +82,9 @@ class PointsGame(Game):
             return
         
         if reaction_event.emoji.name in self.reacts:
-            self.points_dict[reaction_event.message_author_id] += 1
-            await self.channel.get_partial_message(reaction_event.message_id).add_reaction(self.reacts[reaction_event.emoji.name])
+            reaction, points = self.reacts[reaction_event.emoji.name]
+            self.points_dict[reaction_event.message_author_id] += points
+            await self.channel.get_partial_message(reaction_event.message_id).add_reaction(reaction)
 
 class EggsGame(Game):
     def __init__(self, client: discord.Client, message: discord.Message) -> None:
