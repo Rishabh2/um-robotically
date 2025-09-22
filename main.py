@@ -1,6 +1,6 @@
 import discord
 import random
-from games import Game, RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, HiddenConnectionsGame, PointsGame, EggsGame
+from games import Game, RedactedGame, TwentyQuestionsGame, NeedsMorePixelsGame, HiddenConnectionsGame, PointsGame, EggsGame, BracketGame
 
 BOT_STUFF_ID = 1173819549326524537
 H2_ID = 242558859300831232
@@ -170,7 +170,17 @@ class MyClient(discord.Client):
                 return
             self.games.add(EggsGame(self, message))
             await message.channel.send('Egg')
-            return    
+            return
+        
+        if message.content.lower().startswith('!bracket'):
+            # Start bracket
+            if any(isinstance(game, BracketGame) for game in self.games):
+                await message.channel.send('There is a game of this type running')
+                return
+            self.games.add(BracketGame(self, message))
+            await message.channel.send('Say Ready to start entering answers')
+            return
+                 
         
         # Play each game, then remove any inactive games
         for game in self.games:

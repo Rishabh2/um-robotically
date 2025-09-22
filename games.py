@@ -445,6 +445,11 @@ class RedactedGame(Game):
             if words[0].lower().startswith('!score'):
                 await message.channel.send(self.status())
                 return
+            if words[0].lower().startswith('!remaining'):
+                # Send remaining words in DMs
+                remaining_words = ', '.join(self.tokens)
+                self.author.send(remaining_words)
+                return
             
         # Don't process messages outside the game channel
         if message.channel.id != self.channel.id:
@@ -554,3 +559,69 @@ class NeedsMorePixelsGame(Game):
                 self.image_file.seek(0)
                 await message.channel.send(file=discord.File(self.image_file, filename="nmp"+self.filetype))
                 self.active = False
+
+class BracketGame(Game):
+    def __init__(self, client: discord.Client, message: discord.Message) -> None:
+        Game.__init__(self, client, message)
+        self.text = message.content[message.content.find('\n')+1:]
+        self.game = self.text
+        self.answers = dict()
+        self.channel = client.get_partial_messageable(1173826918680895538)
+        self.message = None
+        
+        # Start setup process
+        self.state = 'Readying'
+    
+    def status(self) -> str:
+        to_send = re.sub(r'\[[^\[\]]+\]', r'**\0**', self.game)
+        return '> ' + to_send
+    
+    async def update_message(self, message: discord.Message) -> None:
+        if message.author.id == self.author.id:
+            if isinstance(message.channel, discord.DMChannel) or message.channel.id == self.channel.id:
+                if message.content.lower().startswith('!end'):
+                    self.active = False
+        
+        # If in Readying mode, wait for a start
+        if self.state == 'Readying':
+            if message.author.id != self.author.id:
+                return
+            if not isinstance(message.channel, discord.DMChannel):
+                return
+            self.state = 'Setup'
+            self.setup_clue = re.search(r'\[[^\[\]]+\]', self.game)
+            await message.channel.send('> ' + self.setup_clue.group(0))
+        # If in Setup mode, get an answer to the clue
+        elif self.state == 'Setup':
+            if message.author.id != self.author.id:
+                return
+            if not isinstance(message.channel, discord.DMChannel):
+                return
+            self.answers[self.setup_clue.group(0)] = message.content
+            self.game = self.game.replace(self.setup_clue.group(0), message.content)
+            self.setup_clue = re.search(r'\[[^\[\]]+\]', self.game)
+            if not self.setup_clue:
+                self.state = 'Playing'
+                self.game = self.text
+                await message.channel.send('Setup Complete, Starting Game')
+                self.message = await self.channel.send(self.status())
+            else:
+                await message.channel.send('> ' + self.setup_clue.group(0))
+        elif self.state == 'Playing':
+            if message.channel.id != self.channel.id:
+                return
+            content = message.content.lower()
+            if content.startswith('!game'):
+                self.message = await message.channel.send(self.status())
+            if message.author.id == self.author.id:
+                return
+            for clue, answer in self.answers.items():
+                if content == answer.lower() and clue in self.game:
+                    self.game = self.game.replace(clue, answer)
+                    await self.message.edit(content=self.status())
+                    await message.add_reaction('✍️')
+            if not '[' in self.game:
+                await message.channel.send(self.status())
+                await message.channel.send('Congratulations!')
+                self.active = False
+                
