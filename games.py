@@ -448,7 +448,7 @@ class RedactedGame(Game):
             if words[0].lower().startswith('!remaining'):
                 # Send remaining words in DMs
                 remaining_words = ', '.join(self.tokens)
-                self.author.send(remaining_words)
+                await self.author.send(remaining_words)
                 return
             
         # Don't process messages outside the game channel
@@ -623,6 +623,7 @@ class BracketGame(Game):
                     await self.message.edit(content=self.status())
                     await message.add_reaction('✍️')
             if not '[' in self.game:
+                await message.channel.send('> ' + self.text)
                 await message.channel.send(self.status())
                 await message.channel.send('Congratulations!')
                 self.active = False
