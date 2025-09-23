@@ -590,6 +590,21 @@ class BracketGame(Game):
                 return
             if not isinstance(message.channel, discord.DMChannel):
                 return
+            # Validate brackets
+            counter = 0
+            valid = True
+            for character in self.text:
+                if character == '[':
+                    counter += 1
+                if character == ']':
+                    if counter == 0:
+                        valid = False
+            if counter != 0:
+                valid = False
+            if not valid:
+                await message.channel.send('Your brackets are unbalanced')
+                self.active = False
+                return
             self.state = 'Setup'
             self.setup_clue = re.search(r'\[[^\[\]]+\]', self.game)
             await message.channel.send('> ' + self.setup_clue.group(0))
