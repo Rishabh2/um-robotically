@@ -621,7 +621,6 @@ class BracketGame(Game):
                 self.state = 'Playing'
                 self.game = self.text
                 await message.channel.send('Setup Complete, Starting Game')
-                self.message = await self.channel.send(self.status())
             else:
                 await message.channel.send('> ' + self.setup_clue.group(0))
         elif self.state == 'Playing':
@@ -635,7 +634,8 @@ class BracketGame(Game):
             for clue, answer in self.answers.items():
                 if content == answer.lower() and clue in self.game:
                     self.game = self.game.replace(clue, answer)
-                    await self.message.edit(content=self.status())
+                    if self.message:
+                        await self.message.edit(content=self.status())
                     await message.add_reaction('✍️')
             if not '[' in self.game:
                 await message.channel.send('> ' + self.text)
