@@ -464,6 +464,9 @@ class RedactedGame(Game):
         if message.author.id == self.author.id:
             return
         
+        if not self.message: # Wait for the first !game
+            return
+        
         to_remove = set()
         for word in words:
             for token in self.tokens:
@@ -599,6 +602,7 @@ class BracketGame(Game):
                 if character == ']':
                     if counter == 0:
                         valid = False
+                    counter -= 1
             if counter != 0:
                 valid = False
             if not valid:
