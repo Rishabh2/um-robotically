@@ -573,7 +573,7 @@ class BracketGame(Game):
         self.state = 'Readying'
     
     def status(self) -> str:
-        to_send = re.sub(r'\[[^\[\]]+\]', r'**\0**', self.game)
+        to_send = re.sub(r'(\[[^\[\]]+\])', r'**\1**', self.game)
         return '> ' + to_send
     
     async def update_message(self, message: discord.Message) -> None:
@@ -581,6 +581,8 @@ class BracketGame(Game):
             if isinstance(message.channel, discord.DMChannel) or message.channel.id == self.channel.id:
                 if message.content.lower().startswith('!end'):
                     self.active = False
+                    await message.channel.send('Game Canceled')
+                    return
         
         # If in Readying mode, wait for a start
         if self.state == 'Readying':
