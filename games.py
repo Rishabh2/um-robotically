@@ -631,11 +631,12 @@ class BracketGame(Game):
                 self.message = await message.channel.send(self.status())
             if message.author.id == self.author.id:
                 return
+            if not self.message: # Don't process until the first !game
+                return
             for clue, answer in self.answers.items():
                 if content == answer.lower() and clue in self.game:
                     self.game = self.game.replace(clue, answer)
-                    if self.message:
-                        await self.message.edit(content=self.status())
+                    await self.message.edit(content=self.status())
                     await message.add_reaction('✍️')
             if not '[' in self.game:
                 await message.channel.send('> ' + self.text)
