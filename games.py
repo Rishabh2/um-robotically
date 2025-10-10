@@ -464,7 +464,8 @@ class RedactedGame(Game):
                 return
             if words[0].lower().startswith('!remaining'):
                 # Send remaining words in DMs
-                remaining_words = ', '.join(self.tokens)
+                pattern = r'\|\|(.*?)\|\|'
+                remaining_words = '\n'.join(re.findall(pattern, self.text))
                 await self.author.send(remaining_words)
                 return
             
