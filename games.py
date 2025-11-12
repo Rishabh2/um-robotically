@@ -457,10 +457,15 @@ class RedactedGame(Game):
                 return
             if words[0].lower().startswith('!reveal'):
                 await message.channel.send(self.plain_text)
+                if self.is_scoregame:
+                    await message.channel.send(self.status())
                 self.active = False
                 return
             if words[0].lower().startswith('!score'):
-                await message.channel.send(self.status())
+                if self.is_scoregame:
+                    await message.channel.send(self.status())
+                else:
+                    await message.channel.send("No score is being tracked")
                 return
             if words[0].lower().startswith('!remaining'):
                 # Send remaining words in DMs
