@@ -279,6 +279,21 @@ class HiddenConnectionsGame(Game):
             if self.message:
                 await self.message.edit(content=self.status())
             return
+        if content.startswith('!clue'):
+            # Two possibilities, full row edit or partial edit
+            row_number, clue = message.content[5:].split(maxsplit=1)
+            re_clue = r'^.*? \('
+            if ord('a') <= ord(row_number[-1]) and ord(row_number[-1]) <= ord('z'):
+                # partial clue
+                row_number, index = int(row_number[:-1]) - 1, ord(row_number[-1]) - ord('a')
+            else:
+                row_number, index = int(row_number) - 1, 0
+            old_entry = self.rows[row_number][index]
+            new_entry = re.sub(re_clue, clue + ' (', old_entry)
+            self.rows[row_number][index] = new_entry
+            await message.add_reaction('✍️')
+            if self.message:
+                await self.message.edit(content=self.status())
         if content.startswith('!acronym'):
             # Two possibilities, full row edit or partial edit
             row_number, acronym = message.content[8:].split(maxsplit=1)
