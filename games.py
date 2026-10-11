@@ -282,7 +282,7 @@ class HiddenConnectionsGame(Game):
         if content.startswith('!clue'):
             # Two possibilities, full row edit or partial edit
             row_number, clue = message.content[5:].split(maxsplit=1)
-            re_clue = r'^.*? \('
+            re_clue = r'^.*? ?\('
             if ord('a') <= ord(row_number[-1]) and ord(row_number[-1]) <= ord('z'):
                 # partial clue
                 row_number, index = int(row_number[:-1]) - 1, ord(row_number[-1]) - ord('a')
