@@ -8,8 +8,9 @@ H2_ID = 242558859300831232
 DRAKO_ID = 367475590552616961
 MOD_UPDATES_ID = 1208125017217568869
 DEBUG = False
+TOKEN_PATH = "" if DEBUG else "/root/um-robotically/"
 
-with open("discord.token", "r") as token_file:
+with open(TOKEN_PATH + "discord.token", "r") as token_file:
     token = token_file.read()
 
 class MyClient(discord.Client):
