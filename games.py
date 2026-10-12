@@ -507,18 +507,21 @@ class RedactedGame(Game):
         
         to_remove = set()
         for word in words:
+            update_score = False
             for token in self.tokens:
                 if snow_stemmer.stem(re.sub(r'\W', '', word)) == snow_stemmer.stem(re.sub(r'\W', '', token)):
                     self.text = self.text.replace(f'||{token}||', token)
                     to_remove.add(token)
                     if self.is_scoregame:
-                        self.scores[message.author.id] += 1
+                        update_score = True
                 if re.sub(r'\W', '', token).lower().endswith('in'):
                     if snow_stemmer.stem(re.sub(r'\W', '', word)) == snow_stemmer.stem(re.sub(r'\W', '', token+'g')):
                         self.text = self.text.replace(f'||{token}||', token)
                         to_remove.add(token)
                         if self.is_scoregame:
-                            self.scores[message.author.id] += 1
+                            update_score = True
+            if update_score:
+                self.scores[message.author.id] += 1
         self.tokens = self.tokens.difference(to_remove)
         if to_remove:
             # If it the first message has been more than 10 seconds since the last message, send a new one
