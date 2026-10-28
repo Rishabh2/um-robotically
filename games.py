@@ -65,11 +65,11 @@ class PointsGame(Game):
                 self.points_dict[user_id] = 0
             await message.add_reaction('✍️')
         else:
-            point_value = re.search(r'[\d-]+$', message.content.lower().split()[0])
+            point_value = re.search(r'[.\d-]+$', message.content.lower().split()[0])
             if not point_value:
                 point_value = 1
             else:
-                point_value = int(point_value.group(0))
+                point_value = float(point_value.group(0))
             for user_id in message.raw_mentions:
                 self.points_dict[user_id] += point_value
             await message.add_reaction('✍️')
@@ -123,11 +123,11 @@ class EggsGame(Game):
                 self.eggs_dict[user_id] = 0
             await message.add_reaction('✍️')
         else:
-            egg_value = re.search(r'[\d-]+$', message.content.lower().split()[0])
+            egg_value = re.search(r'[.\d-]+$', message.content.lower().split()[0])
             if not egg_value:
                 egg_value = 1
             else:
-                egg_value = int(egg_value.group(0))
+                egg_value = float(egg_value.group(0))
             for user_id in message.raw_mentions:
                 self.eggs_dict[user_id] += egg_value
             await message.add_reaction('🥚')
