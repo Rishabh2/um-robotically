@@ -55,16 +55,15 @@ class PointsGame(Game):
             await message.channel.send(self.status(), silent=True)
             return
         
-        if not (content.startswith('!p') or content.startswith('!reset')):
-            return
-        
-        if len(message.raw_mentions) == 0:
-            await message.channel.send(self.status(), silent=True)
-        elif content.startswith('!reset'):
+        if content.startswith('!reset'):
             for user_id in message.raw_mentions:
                 self.points_dict[user_id] = 0
             await message.add_reaction('✍️')
-        else:
+        elif content.startswith('!remove'):
+            for user_id in message.raw_mentions:
+                self.points_dict.pop(user_id, None)
+            await message.add_reaction('✍️')
+        elif content.startswith('!p'):
             point_value = re.search(r'[.\d-]+$', message.content.lower().split()[0])
             if not point_value:
                 point_value = 1
@@ -121,6 +120,10 @@ class EggsGame(Game):
         elif content.startswith('!reset'):
             for user_id in message.raw_mentions:
                 self.eggs_dict[user_id] = 0
+            await message.add_reaction('✍️')
+        elif content.startswith('!remove'):
+            for user_id in message.raw_mentions:
+                self.eggs_dict.pop(user_id, None)
             await message.add_reaction('✍️')
         else:
             egg_value = re.search(r'[.\d-]+$', message.content.lower().split()[0])
