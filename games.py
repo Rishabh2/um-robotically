@@ -64,6 +64,9 @@ class PointsGame(Game):
                 self.points_dict.pop(user_id, None)
             await message.add_reaction('✍️')
         elif content.startswith('!p'):
+            if len(message.raw_mentions) == 0:
+                await message.channel.send(self.status(), silent=True)
+                return
             point_value = re.search(r'[.\d-]+$', message.content.lower().split()[0])
             if not point_value:
                 point_value = 1
